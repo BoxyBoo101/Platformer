@@ -1,10 +1,11 @@
 import pygame
 import os 
+import random
 #merge git versions
 pygame.init()
 clock = pygame.time.Clock()
 fps = 60
-bg = "grey"
+bg = "black"
 red = "red"
 SCREENWIDTH = 1200
 SCREENHEIGHT = 900
@@ -84,7 +85,10 @@ class Soldier(pygame.sprite.Sprite):
         if self.rect.bottom + movey > 300:
             movey = 300 - self.rect.bottom
             self.air = False
-
+        if self.rect.left < 20:
+            self.rect.left = 20
+        if self.rect.right > SCREENWIDTH - 20:
+            self.rect.right = SCREENWIDTH - 20
         self.rect.x += movinglr
         self.rect.y += movey
 
@@ -150,8 +154,8 @@ movel = False
 shoot = False
 emover = False
 emovel = False
-player = Soldier(200, 200, 3, 8, "player", 20)
-enemy = Soldier(300, 200, 3, 8, "enemy", 20)
+player = Soldier(100, 200, 3, 8, "player", 20)
+enemy = Soldier(1100, 200, 3, 8, "enemy", 20)
 run = True
 
 
@@ -195,8 +199,33 @@ while run:
             shoot = True
         if event.type == pygame.MOUSEBUTTONUP:
             shoot = False
+    if enemy.alive:
+        if emover or emovel:
+            enemy.updateaction(1)
+        else:
+            enemy.updateaction(0)
+        if enemy.jump:
+            enemy.updateaction(2)
+        if random.randint(1, 20) == 7:
+            if random.randint(1, 2) == 1:
+                emover = not emover
+                
+            else:
+                emovel = not emovel
+        if random.randint(1, 100) == 10:
+            enemy.jump = True
+        if random.randint(1, 50) == 15:
+            if player.rect.left < enemy.rect.left:
+                enemy.dir = 0
+                emover = False
+                emovel = True
+                enemy.shoot()
+            else:
+                enemy.dir = 1
+                emover = True
+                emovel = False
+                enemy.shoot()
     clock.tick(fps)
-
     pygame.display.update()
 
 pygame.quit()
