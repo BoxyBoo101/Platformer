@@ -4,7 +4,7 @@ import os
 pygame.init()
 clock = pygame.time.Clock()
 fps = 60
-bg = "black"
+bg = "grey"
 red = "red"
 SCREENWIDTH = 1200
 SCREENHEIGHT = 900
@@ -175,7 +175,6 @@ while run:
             player.updateaction(0) #idle
         player.move(movel, mover)
         player.shotcool -= 1
-        print(len(bulletgroup))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
