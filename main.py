@@ -1,7 +1,6 @@
 import pygame
 import os 
 import random
-import time
 #add health bar
 pygame.init()
 clock = pygame.time.Clock()
@@ -9,6 +8,8 @@ fps = int(input("How many frames per second do you want to play in? (Playing in 
 speed = 60 / fps
 bg = "black"
 red = "red"
+
+#mode
 mode = input("Which mode will you play? (S = Sniper, A = Assult)")
 if mode == "S":
     firesfx = pygame.mixer.Sound("Assets/bfg.mp3")
@@ -24,7 +25,7 @@ elif mode == "A":
     firesfx = pygame.mixer.Sound("Assets/ak.mp3")
     gundam = 5
     edodgechance = round(50 / speed)
-    eburst = 20
+    eburst = 60
     faceplayer = round(3 / speed)
     bulletspeed = 25
     eshotchance = round(40 / speed)
@@ -35,12 +36,43 @@ display = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
 pygame.display.set_caption("Fight")
 GRAVITY = 0.6 * speed
 bulletimg = pygame.image.load("Assets/icons/bullet.png")
+background = pygame.image.load("Assets/background/sky_cloud.png")
+background = pygame.transform.scale(background, (2282, 700))
+foreground = pygame.image.load("Assets/background/mountain.png")
+foreground = pygame.transform.scale(foreground, (3000, 554))
+ground = pygame.image.load("Assets/tile/0.png")
+ground = pygame.transform.scale(ground, (64, 64))
+grass = pygame.image.load("Assets/tile/14.png")
+grass = pygame.transform.scale(grass, (64, 64))
 curburst = 0
 
 
 def drawbg():
-    display.fill(bg)
-    pygame.draw.line(display, red, (0, 700), (SCREENWIDTH, 700))
+
+    display.blit(background, (0, 0))
+    display.blit(foreground, (0, 350))
+
+def drawtile():
+    #ground
+    x = 0
+    y = 836
+    while x < 1200:
+        display.blit(ground, (x, y))
+        x += 64
+def drawgrass():
+    x = 0
+    y = 772
+    while x < 1200:
+        display.blit(grass, (x, y))
+        x += 64
+    x = -32
+    y = 776
+    while x < 1200:
+        display.blit(grass, (x, y ))
+        x += 64
+    
+
+
 class Soldier(pygame.sprite.Sprite):
     def __init__(self, x, y, scale, speed, type, ammo):
         pygame.sprite.Sprite.__init__(self)
@@ -105,8 +137,8 @@ class Soldier(pygame.sprite.Sprite):
             self.vel_y = 10
         movey += self.vel_y
 
-        if self.rect.bottom + movey > 700:
-            movey = 700 - self.rect.bottom
+        if self.rect.bottom + movey > 836:
+            movey = 836 - self.rect.bottom
             self.air = False
         if self.rect.left < 20:
             self.rect.left = 20
@@ -278,13 +310,14 @@ while run:
 
 
     drawbg()
-
+    drawtile()
     player.update()
     enemy.update()
     player.draw()
     enemy.draw()
     bulletgroup.update()
     bulletgroup.draw(display)
+    drawgrass()
     clock.tick(fps)
     pygame.display.update()
 
