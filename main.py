@@ -32,7 +32,7 @@ elif mode == "A":
 SCREENWIDTH = 1200
 SCREENHEIGHT = 900
 display = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-pygame.display.set_caption("Plat")
+pygame.display.set_caption("Fight")
 GRAVITY = 0.6 * speed
 bulletimg = pygame.image.load("Assets/icons/bullet.png")
 curburst = 0
