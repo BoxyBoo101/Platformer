@@ -5,7 +5,9 @@ import random
 pygame.init()
 clock = pygame.time.Clock()
 fps = int(input("How many frames per second do you want to play in? (Playing in less than 60fps will cause issues, but play at 60fps for the most stable game.) "))
+players = int(input("How many players? 1 or 2. "))
 speed = 60 / fps
+print(speed, fps)
 bg = "black"
 red = "red"
 
@@ -19,7 +21,7 @@ if mode == "S":
     eburst = 1
     eshotchance = round(100 / speed)
     faceplayer = 1
-    bulletspeed = 30
+    bulletspeed = 30 / speed
 elif mode == "A":
     rpm = 600 * speed
     firesfx = pygame.mixer.Sound("Assets/ak.mp3")
@@ -27,7 +29,7 @@ elif mode == "A":
     edodgechance = round(50 / speed)
     eburst = 60
     faceplayer = round(3 / speed)
-    bulletspeed = 25
+    bulletspeed = 25 / speed
     eshotchance = round(40 / speed)
 
 SCREENWIDTH = 1200
@@ -43,7 +45,7 @@ foreground = pygame.transform.scale(foreground, (3000, 554))
 ground = pygame.image.load("Assets/tile/0.png")
 ground = pygame.transform.scale(ground, (64, 64))
 grass = pygame.image.load("Assets/tile/14.png")
-grass = pygame.transform.scale(grass, (64, 64))
+grass = pygame.transform.scale(grass, (64, 64)) 
 curburst = 0
 
 
@@ -74,13 +76,13 @@ def drawgrass():
 
 
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, speed, type, ammo):
+    def __init__(self, x, y, scale, movespeed, type, ammo):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         self.health = 100
         self.basehealth = self.health
         self.type = type
-        self.speed = speed
+        self.speed = movespeed
         self.ammo = ammo
         self.startammo = ammo
         self.shotcool = 0
@@ -146,6 +148,7 @@ class Soldier(pygame.sprite.Sprite):
             self.rect.right = SCREENWIDTH - 20
         self.rect.x += movinglr
         self.rect.y += movey * speed
+        print(speed)
 
 
     def updateanim(self):
@@ -208,10 +211,11 @@ bulletgroup = pygame.sprite.Group()
 mover = False
 movel = False
 shoot = False
+eshoot = False
 emover = False
 emovel = False
-player = Soldier(100, 200, 3, 8 * speed, "player", 20)
-enemy = Soldier(1100, 200, 3, 8 * speed, "enemy", 20)
+player = Soldier(100, 200, 3, 8, "player", 20)
+enemy = Soldier(1100, 200, 3, 8, "enemy", 20)
 
 
 run = True
@@ -219,42 +223,76 @@ run = True
 
 while run:
 
-    enemy.move(emovel, emover)
 
 
     if player.alive:
         if shoot:
             player.shoot()
+        if eshoot:
+            enemy.shoot()
         if player.air:
             player.updateaction(2)
         elif movel or mover:
             player.updateaction(1) #run
         else:
             player.updateaction(0) #idle
+        if emover or emovel:
+            enemy.updateaction(1)
+        else:
+            enemy.updateaction(0)
+        if enemy.jump:
+            enemy.updateaction(2)
+
         player.move(movel, mover)
+        enemy.move(emovel, emover)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+            #player1
+            if event.key == pygame.K_d:
                 mover = True
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+            if event.key == pygame.K_a:
                 movel = True
-            if event.key == pygame.K_SPACE or event.key == pygame.K_UP or event.key == pygame.K_w:
+            if event.key == pygame.K_SPACE or event.key == pygame.K_w:
                 player.jump = True
+            if event.key == pygame.K_s:
+                shoot = True
+            #player2
+            if players == 2:
+                if event.key == pygame.K_UP:
+                    enemy.jump = True
+                if event.key == pygame.K_LEFT:
+                    emovel = True
+                if event.key == pygame.K_RIGHT:
+                    emover = True
+                if event.key == pygame.K_DOWN:
+                    eshoot = True
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+            #player1
+            if event.key == pygame.K_d:
                 mover = False
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                movel = False  
+            if event.key == pygame.K_a:
+                movel = False
+            if event.key == pygame.K_s:
+                shoot = False
+            #player2
+            if event.key == pygame.K_LEFT:
+                emovel = False
+            if event.key == pygame.K_UP:
+                enemy.jump = True
+            if event.key == pygame.K_DOWN:
+                eshoot = False
+            if event.key == pygame.K_RIGHT:
+                emover = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             shoot = True
         if event.type == pygame.MOUSEBUTTONUP:
             shoot = False
 
-
     #Enemy AI
-    if enemy.alive:
+    if enemy.alive and players == 1:
         curburst -= 1
         if emover or emovel:
             enemy.updateaction(1)
@@ -307,8 +345,8 @@ while run:
                     curburst = eburst
                 else:
                     enemy.shoot
-
-
+    
+    print(emovel)
     drawbg()
     drawtile()
     player.update()
