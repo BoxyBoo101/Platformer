@@ -205,6 +205,36 @@ class Bullet(pygame.sprite.Sprite):
                 enemy.health -= gundam
                 self.kill()
 
+
+
+class Healthbar():
+    def __init__(self, x, y, health, basehealth):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.basehealth = basehealth
+    def draw(self, health):
+        self.health = health
+        ratio = self.health / self.basehealth
+        pygame.draw.rect(display, "black", (self.x - 3, self.y - 3, 156, 26))
+
+        pygame.draw.rect(display, "red", (self.x, self.y, 150, 20))
+        pygame.draw.rect(display, "green", (self.x, self.y, 150 * ratio, 20))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bulletgroup = pygame.sprite.Group()
 
 
@@ -216,6 +246,8 @@ emover = False
 emovel = False
 player = Soldier(100, 200, 3, 8, "player", 20)
 enemy = Soldier(1100, 200, 3, 8, "enemy", 20)
+barhealth1= Healthbar(10, 10, player.health, player.health)
+barhealth2= Healthbar(1040, 10, enemy.health, enemy.health)
 
 
 run = True
@@ -242,9 +274,6 @@ while run:
             enemy.updateaction(0)
         if enemy.jump:
             enemy.updateaction(2)
-
-        player.move(movel, mover)
-        enemy.move(emovel, emover)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -345,7 +374,8 @@ while run:
                     curburst = eburst
                 else:
                     enemy.shoot
-    
+    player.move(movel, mover)
+    enemy.move(emovel, emover)
     print(emovel)
     drawbg()
     drawtile()
@@ -356,6 +386,8 @@ while run:
     bulletgroup.update()
     bulletgroup.draw(display)
     drawgrass()
+    barhealth1.draw(player.health)
+    barhealth2.draw(enemy.health)
     clock.tick(fps)
     pygame.display.update()
 
