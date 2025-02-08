@@ -118,6 +118,11 @@ class Soldier(pygame.sprite.Sprite):
         self.updateanim()
         if self.shotcool > 0:
             self.shotcool -= 1
+    def updatenemy(self):
+        self.checkalivenemy()
+        self.updateanim()
+        if self.shotcool > 0:
+            self.shotcool -= 1
 
     def move(self, movel, mover):
         movinglr = 0
@@ -181,7 +186,12 @@ class Soldier(pygame.sprite.Sprite):
             self.alive = False
             self.speed = 0
             self.updateaction(3)
-
+    def checkalivenemy(self):
+        if self.health <= 0:
+            self.health = 0
+            self.alive = False
+            self.speed = 0
+            self.updateaction(3)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, dir):
@@ -268,7 +278,7 @@ while run:
             player.updateaction(1) #run
         else:
             player.updateaction(0) #idle
-        if emover or emovel:
+        if emover or emovel and enemy.alive:
             enemy.updateaction(1)
         else:
             enemy.updateaction(0)
@@ -290,13 +300,13 @@ while run:
                 shoot = True
             #player2
             if players == 2:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_UP and enemy.alive:
                     enemy.jump = True
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and enemy.alive:
                     emovel = True
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_RIGHT and enemy.alive:
                     emover = True
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_DOWN and enemy.alive:
                     eshoot = True
         if event.type == pygame.KEYUP:
             #player1
@@ -310,7 +320,7 @@ while run:
             if event.key == pygame.K_LEFT:
                 emovel = False
             if event.key == pygame.K_UP:
-                enemy.jump = True
+                enemy.jump = False
             if event.key == pygame.K_DOWN:
                 eshoot = False
             if event.key == pygame.K_RIGHT:
@@ -380,7 +390,7 @@ while run:
     drawbg()
     drawtile()
     player.update()
-    enemy.update()
+    enemy.updatenemy()
     player.draw()
     enemy.draw()
     bulletgroup.update()
