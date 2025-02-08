@@ -32,11 +32,13 @@ elif mode == "A":
     bulletspeed = 25 / speed
     eshotchance = round(40 / speed)
 
+
 SCREENWIDTH = 1200
 SCREENHEIGHT = 900
 display = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
 pygame.display.set_caption("Fight")
 GRAVITY = 0.6 * speed
+deathsound = pygame.mixer.Sound("Assets/deathbeep.mp3")
 bulletimg = pygame.image.load("Assets/icons/bullet.png")
 background = pygame.image.load("Assets/background/sky_cloud.png")
 background = pygame.transform.scale(background, (2282, 700))
@@ -182,17 +184,19 @@ class Soldier(pygame.sprite.Sprite):
             firesfx.play()
     def checkalive(self):
         if self.health <= 0:
+            self.kill()
             self.health = 0
-            self.alive = False
             self.speed = 0
             self.updateaction(3)
     def checkalivenemy(self):
         if self.health <= 0:
+            self.kill()
             self.health = 0
-            self.alive = False
             self.speed = 0
             self.updateaction(3)
-
+    def kill(self):
+        self.alive = False
+        deathsound.play()
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, dir):
         pygame.sprite.Sprite.__init__(self)
@@ -256,8 +260,8 @@ emover = False
 emovel = False
 player = Soldier(100, 200, 3, 8, "player", 20)
 enemy = Soldier(1100, 200, 3, 8, "enemy", 20)
-barhealth1= Healthbar(10, 10, player.health, player.health)
-barhealth2= Healthbar(1040, 10, enemy.health, enemy.health)
+barhealth1 = Healthbar(10, 10, player.health, player.health)
+barhealth2 = Healthbar(1040, 10, enemy.health, enemy.health)
 
 
 run = True
