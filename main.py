@@ -3,11 +3,10 @@ import os
 import random
 #add health bar
 pygame.init()
+pygame.mixer.init(44100, -16, 8)
 clock = pygame.time.Clock()
-fps = int(input("How many frames per second do you want to play in? (Playing in less than 60fps will cause issues, but play at 60fps for the most stable game.) "))
 players = int(input("How many players? 1 or 2. "))
-speed = 60 / fps
-print(speed, fps)
+speed = 1
 bg = "black"
 red = "red"
 #mode
@@ -157,7 +156,6 @@ class Soldier(pygame.sprite.Sprite):
             self.rect.right = SCREENWIDTH - 20
         self.rect.x += movinglr
         self.rect.y += movey * speed
-        print(speed)
 
 
     def updateanim(self):
@@ -397,7 +395,6 @@ while run:
                     enemy.shoot
     player.move(movel, mover)
     enemy.move(emovel, emover)
-    print(emovel)
     drawbg()
     drawtile()
     player.update()
@@ -421,7 +418,7 @@ while run:
             emover = False
             emovel = False
 
-    clock.tick(fps)
+    clock.tick(60)
     pygame.display.update()
 
 pygame.quit()
