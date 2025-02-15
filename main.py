@@ -10,7 +10,6 @@ speed = 60 / fps
 print(speed, fps)
 bg = "black"
 red = "red"
-
 #mode
 mode = input("Which mode will you play? (S = Sniper, A = Assult)")
 if mode == "S":
@@ -47,9 +46,11 @@ foreground = pygame.transform.scale(foreground, (3000, 554))
 ground = pygame.image.load("Assets/tile/0.png")
 ground = pygame.transform.scale(ground, (64, 64))
 grass = pygame.image.load("Assets/tile/14.png")
-grass = pygame.transform.scale(grass, (64, 64)) 
+grass = pygame.transform.scale(grass, (64, 64))
 curburst = 0
-
+font = pygame.font.Font("Assets/8bitfont.ttf", 64)
+text = font.render("GAME OVER", True, (0, 0, 0))
+trect = text.get_rect(center = (SCREENWIDTH / 2, SCREENHEIGHT / 2))
 
 def drawbg():
 
@@ -98,6 +99,7 @@ class Soldier(pygame.sprite.Sprite):
         self.jump = False
         self.air = False
         self.vel_y = 0
+        self.hasdied = False
         for animation in animation_types:
             temp_list = []
             framenum = len(os.listdir(f"Assets/{self.type}/{animation}"))
@@ -184,19 +186,24 @@ class Soldier(pygame.sprite.Sprite):
             firesfx.play()
     def checkalive(self):
         if self.health <= 0:
-            self.kill()
+            self.alive = False
+            if self.hasdied == False:
+                deathsound.play()
+                self.hasdied = True
             self.health = 0
             self.speed = 0
             self.updateaction(3)
+            self.alive = False
     def checkalivenemy(self):
         if self.health <= 0:
-            self.kill()
+            self.alive = False
+            if self.hasdied == False:
+                deathsound.play()
+                self.hasdied = True
             self.health = 0
             self.speed = 0
             self.updateaction(3)
-    def kill(self):
-        self.alive = False
-        deathsound.play()
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, dir):
         pygame.sprite.Sprite.__init__(self)
@@ -271,7 +278,7 @@ while run:
 
 
 
-    if player.alive:
+    if player.alive and enemy.alive:
         if shoot:
             player.shoot()
         if eshoot:
@@ -294,23 +301,23 @@ while run:
             run = False
         if event.type == pygame.KEYDOWN:
             #player1
-            if event.key == pygame.K_d:
+            if event.key == pygame.K_d and player.alive and enemy.alive:
                 mover = True
-            if event.key == pygame.K_a:
+            if event.key == pygame.K_a and player.alive and enemy.alive:
                 movel = True
-            if event.key == pygame.K_SPACE or event.key == pygame.K_w:
+            if event.key == pygame.K_SPACE or event.key == pygame.K_w and player.alive and enemy.alive:
                 player.jump = True
-            if event.key == pygame.K_s:
+            if event.key == pygame.K_s and player.alive and enemy.alive:
                 shoot = True
             #player2
             if players == 2:
-                if event.key == pygame.K_UP and enemy.alive:
+                if event.key == pygame.K_UP and enemy.alive and player.alive:
                     enemy.jump = True
-                if event.key == pygame.K_LEFT and enemy.alive:
+                if event.key == pygame.K_LEFT and enemy.alive and player.alive:
                     emovel = True
-                if event.key == pygame.K_RIGHT and enemy.alive:
+                if event.key == pygame.K_RIGHT and enemy.alive and player.alive:
                     emover = True
-                if event.key == pygame.K_DOWN and enemy.alive:
+                if event.key == pygame.K_DOWN and enemy.alive and player.alive:
                     eshoot = True
         if event.type == pygame.KEYUP:
             #player1
@@ -335,7 +342,7 @@ while run:
             shoot = False
 
     #Enemy AI
-    if enemy.alive and players == 1:
+    if enemy.alive and players == 1 and player.alive:
         curburst -= 1
         if emover or emovel:
             enemy.updateaction(1)
@@ -402,6 +409,18 @@ while run:
     drawgrass()
     barhealth1.draw(player.health)
     barhealth2.draw(enemy.health)
+    if player.alive == False or enemy.alive == False:
+        display.blit(text, trect)
+        if player.alive:
+            player.updateaction(0)
+            mover = False
+            movel = False
+
+        if enemy.alive:
+            enemy.updateaction(0)
+            emover = False
+            emovel = False
+
     clock.tick(fps)
     pygame.display.update()
 
